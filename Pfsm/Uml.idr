@@ -80,14 +80,15 @@ toUml fsm
     generateStates fsm = join "\n" $ map (\(i, x) => generateState x i) $ enumerate fsm.states
 
     generateTrigger : Trigger -> String
-    generateTrigger (MkTrigger p e (Just g) _) = p ++ " ☛ " ++ e ++ " (" ++ toUmlTestExpression g ++ ")"
-    generateTrigger (MkTrigger p e Nothing  _) = p ++ " ☛ " ++ e
+    generateTrigger (MkTrigger p e (Just g) _) = p.name ++ " ☛ " ++ e.name ++ " (" ++ toUmlTestExpression g ++ ")"
+    generateTrigger (MkTrigger p e Nothing  _) = p.name ++ " ☛ " ++ e.name
 
     generateTransition : List State -> Transition -> String
-    generateTransition ss (MkTransition sr dr ts) = let si = fromMaybe 0 $ fromMaybe (Just 0) $ map (\x => Data.List.index x ss) (derefState sr ss)
-                                                        di = fromMaybe 0 $ fromMaybe (Just 0) $ map (\x => Data.List.index x ss) (derefState dr ss)
-                                                        triggers = join "\\n----\\n" $ map generateTrigger ts in
-                                                        "state" ++ (show si) ++ " --> state" ++ (show di) ++ " : " ++ triggers
+    generateTransition ss (MkTransition s d ts)
+      = let si = fromMaybe 0 $ Data.List.index s ss
+            di = fromMaybe 0 $ Data.List.index d ss
+            triggers = join "\\n----\\n" $ map generateTrigger ts in
+            "state" ++ (show si) ++ " --> state" ++ (show di) ++ " : " ++ triggers
 
     generateTransitions : Fsm -> String
     generateTransitions fsm = join "\n" $ map (\x => generateTransition fsm.states x) fsm.transitions
