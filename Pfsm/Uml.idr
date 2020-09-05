@@ -80,8 +80,8 @@ toUml fsm
     generateStates fsm = join "\n" $ map (\(i, x) => generateState x i) $ enumerate fsm.states
 
     generateTrigger : Trigger -> String
-    generateTrigger (MkTrigger p e (Just g) _) = p.name ++ " ☛ " ++ e.name ++ " (" ++ toUmlTestExpression g ++ ")"
-    generateTrigger (MkTrigger p e Nothing  _) = p.name ++ " ☛ " ++ e.name
+    generateTrigger (MkTrigger ps e (Just g) _) = (join "/" (map (.name) ps)) ++ " ☛ " ++ e.name ++ " (" ++ toUmlTestExpression g ++ ")"
+    generateTrigger (MkTrigger ps e Nothing  _) = (join "/" (map (.name) ps)) ++ " ☛ " ++ e.name
 
     generateTransition : List State -> Transition -> String
     generateTransition ss (MkTransition s d ts)
