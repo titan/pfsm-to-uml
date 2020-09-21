@@ -1,6 +1,6 @@
 package pfsm-to-uml
 
 depends = contrib, pfsm
-main = Pfsm.Uml
+main = Uml
 executable = pfsm-to-uml
 

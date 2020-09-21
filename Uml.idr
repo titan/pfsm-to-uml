@@ -1,7 +1,8 @@
-module Pfsm.Uml
+module Uml
 
 import Data.Maybe
 import Data.List
+import Data.List1
 import Data.Strings
 import System
 import System.File
@@ -55,26 +56,26 @@ toUmlCompareOperation GreatThanOperation           = ">"
 toUmlCompareOperation GreatThanOrEqualsToOperation = ">="
 
 toUmlTestExpression : TestExpression -> String
-toUmlTestExpression (PrimitiveTestExpression e) = toUmlExpression "" e
+toUmlTestExpression (PrimitiveTestExpression e)     = toUmlExpression "" e
 toUmlTestExpression (BinaryTestExpression op e1 e2) = (toUmlTestExpression e1) ++ " " ++ (show op) ++ " " ++ (toUmlTestExpression e2)
-toUmlTestExpression (UnaryTestExpression op e) = (show op) ++ " " ++ (toUmlTestExpression e)
-toUmlTestExpression (CompareExpression op e1 e2) = (toUmlExpression "" e1) ++ " " ++ (toUmlCompareOperation op) ++ " " ++ (toUmlExpression "" e2)
+toUmlTestExpression (UnaryTestExpression op e)      = (show op) ++ " " ++ (toUmlTestExpression e)
+toUmlTestExpression (CompareExpression op e1 e2)    = (toUmlExpression "" e1) ++ " " ++ (toUmlCompareOperation op) ++ " " ++ (toUmlExpression "" e2)
 
 toUml : Fsm -> String
 toUml fsm
-  = foldl (\acc, x => acc ++ "\n\n" ++ x) "" [ "@startuml"
-                                             , generateStates fsm
-                                             , "[*] --> state" ++ (show (fromMaybe 0 (fromMaybe (Just Z) (map (\x => Data.List.index (the State x) fsm.states) (startState fsm)))))
-                                             , generateTransitions fsm
-                                             , "@enduml"
-                                             ]
+  = List.join "\n\n" [ "@startuml"
+                     , generateStates fsm
+                     , "[*] --> state" ++ (show (fromMaybe 0 (fromMaybe (Just Z) (map (\x => Data.List1.index (the State x) fsm.states) (startState fsm)))))
+                     , generateTransitions fsm
+                     , "@enduml"
+                     ]
   where
     generateState : State -> Nat -> String
-    generateState s i = join " " [ "state"
-                                 , show (camelize s.name)
-                                 , "as"
-                                 , "state" ++ (show i)
-                                 ]
+    generateState s i = List.join " " [ "state"
+                                      , show (camelize s.name)
+                                      , "as"
+                                      , "state" ++ (show i)
+                                      ]
 
     generateStates : Fsm -> String
     generateStates fsm = join "\n" $ map (\(i, x) => generateState x i) $ enumerate fsm.states
@@ -83,15 +84,15 @@ toUml fsm
     generateTrigger (MkTrigger ps e (Just g) _) = (join "/" (map (.name) ps)) ++ " ☛ " ++ e.name ++ " (" ++ toUmlTestExpression g ++ ")"
     generateTrigger (MkTrigger ps e Nothing  _) = (join "/" (map (.name) ps)) ++ " ☛ " ++ e.name
 
-    generateTransition : List State -> Transition -> String
+    generateTransition : List1 State -> Transition -> String
     generateTransition ss (MkTransition s d ts)
-      = let si = fromMaybe 0 $ Data.List.index s ss
-            di = fromMaybe 0 $ Data.List.index d ss
-            triggers = join "\\n----\\n" $ map generateTrigger ts in
+      = let si = fromMaybe 0 $ Data.List1.index s ss
+            di = fromMaybe 0 $ Data.List1.index d ss
+            triggers = List1.join "\\n----\\n" $ map generateTrigger ts in
             "state" ++ (show si) ++ " --> state" ++ (show di) ++ " : " ++ triggers
 
     generateTransitions : Fsm -> String
-    generateTransitions fsm = join "\n" $ map (\x => generateTransition fsm.states x) fsm.transitions
+    generateTransitions fsm = List1.join "\n" $ map (\x => generateTransition fsm.states x) fsm.transitions
 
 loadFsm : String -> Either String Fsm
 loadFsm src
