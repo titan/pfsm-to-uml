@@ -71,18 +71,15 @@ toUml fsm
                      ]
   where
     generateState : State -> Nat -> String
-    generateState s i = List.join " " [ "state"
-                                      , show (camelize s.name)
-                                      , "as"
-                                      , "state" ++ (show i)
-                                      ]
+    generateState (MkState name _ _ metas) i
+      = "state \"" ++ (displayName name metas) ++ "\" as state" ++ (show i)
 
     generateStates : Fsm -> String
     generateStates fsm = join "\n" $ map (\(i, x) => generateState x i) $ enumerate fsm.states
 
     generateTrigger : Trigger -> String
-    generateTrigger (MkTrigger ps e (Just g) _) = (join "/" (map (.name) ps)) ++ " ☛ " ++ e.name ++ " (" ++ toUmlTestExpression g ++ ")"
-    generateTrigger (MkTrigger ps e Nothing  _) = (join "/" (map (.name) ps)) ++ " ☛ " ++ e.name
+    generateTrigger (MkTrigger ps e (Just g) _) = (join "/" (map (.name) ps)) ++ " ☛ " ++ (displayName e.name e.metas) ++ " (" ++ toUmlTestExpression g ++ ")"
+    generateTrigger (MkTrigger ps e Nothing  _) = (join "/" (map (.name) ps)) ++ " ☛ " ++ (displayName e.name e.metas)
 
     generateTransition : List1 State -> Transition -> String
     generateTransition ss (MkTransition s d ts)
