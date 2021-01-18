@@ -45,6 +45,7 @@ toUmlExpression _ (BooleanExpression False)    = "false"
 toUmlExpression _ (IdentifyExpression i)       = toUmlModelAttribute i
 toUmlExpression _ (IntegerLiteralExpression i) = show i
 toUmlExpression _ (RealLiteralExpression r)    = show r
+toUmlExpression _ (CharLiteralExpression c)    = show c
 toUmlExpression _ (StringLiteralExpression s)  = "\"" ++ s ++ "\""
 
 toUmlCompareOperation : CompareOperation -> String
