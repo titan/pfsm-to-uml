@@ -95,7 +95,7 @@ toUml fsm
 doWork : String -> IO ()
 doWork src
   = do Right fsm <- loadFsmFromFile src
-       | Left err => putStrLn $ show err
+       | Left err => putStrLn $ err
        putStrLn $ toUml fsm
 
 usage : IO ()
