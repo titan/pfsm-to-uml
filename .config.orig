@@ -1,2 +1,3 @@
 BUILDDIR=/dev/shm/$(NAME-LINK)
 NAME=pfsm-to-uml
+PREFIX=/usr/local/bin
